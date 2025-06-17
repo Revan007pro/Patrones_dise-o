@@ -1,23 +1,31 @@
-﻿using System;
-using Gtk;
+﻿using Gtk;
 
 namespace Administrador
 {
-    public class Administrador1()
+    public class Administrador
     {
-        void _Iniciarseccion()
+        public void IniciarSeccion()
         {
-            Application.Init();
-            Window myWindow = new Window(WindowType.Toplevel);
-            myWindow.SetDefaultSize(400, 400);
-            myWindow.SetPosition(WindowPosition.Center);
-            Box myBox = new Box(Orientation.Horizontal,0);
+            Window adminWindow = new Window("Administrador");
+            adminWindow.SetDefaultSize(400, 400);
+            adminWindow.SetPosition(WindowPosition.Center);
+            adminWindow.DeleteEvent += (o, args) => adminWindow.Hide(); // No cerrar toda la app
+
+            Box myBox = new Box(Orientation.Vertical, 10);
+
             Label myLabel = new Label("Ingrese su nombre de usuario");
+            Entry userEntry = new Entry();
+
+            Label myLabel2 = new Label("Ingrese su número de identificación");
+            Entry idEntry = new Entry();
+
             myBox.PackStart(myLabel, false, false, 0);
-            Label myLabel2 = new Label("ingrese su numero de identificacion");
-            myWindow.Add(myBox);
-            myWindow.ShowAll();
+            myBox.PackStart(userEntry, false, false, 0);
+            myBox.PackStart(myLabel2, false, false, 0);
+            myBox.PackStart(idEntry, false, false, 0);
+
+            adminWindow.Add(myBox);
+            adminWindow.ShowAll();
         }
     }
-
 }

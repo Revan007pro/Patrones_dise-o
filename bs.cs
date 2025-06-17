@@ -1,65 +1,57 @@
 using System;
 using System.Data.SQLite;
-using System.Runtime.Intrinsics.Arm;
-using System.Security.Cryptography; 
+using System.Security.Cryptography;
 using System.Text;
-using GLib;
 
 namespace _basedeDatos
 {
-    class Programa
+    public class DataBaseManager
     {
-
-        static void _dataBase()
+        public void _dataBase(string nombre, string email,dynamic password)
         {
-            string conectionString = "Data Source=usuarios.db;Verion=3;";
-            using (var connetion = new SQLiteConnection(conectionString))
-            {
-                connetion.Open();
-                string createTable = @"
-                CREATE IF NOT EXIST Usuarios(
+            string conectionString = "Data Source=usuarios.db;Version=3;";
+
+    using (var connection = new SQLiteConnection(conectionString))
+    {
+        connection.Open();
+
+        string createTable = @"
+            CREATE TABLE IF NOT EXISTS Usuarios (
                 Id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    Nombre TEXT NOT NULL,
-                    Email TEXT NOT NULL,
-                    PasswordHash TEXT NOT NULL
-                ;)";
-                using (var cmd = new SQLiteCommand(createTable, connetion))
-                {
-                    cmd.ExecuteNonQuery();
-                }
-                Console.WriteLine("Nombre:");
-                string nombre = Console.ReadLine();
-                Console.WriteLine("Email:");
-                string email = Console.ReadLine();
-                Console.WriteLine("Contraseña:");
-                string password = Console.ReadLine();
+                Nombre TEXT NOT NULL,
+                Email TEXT NOT NULL,
+                PasswordHash TEXT NOT NULL
+            );";
 
-                string PasswordHash = CalcularHash(password);
+        using (var createCmd = new SQLiteCommand(createTable, connection))
+        {
+            createCmd.ExecuteNonQuery();
+        }
 
+        string passwordHash = CalcularHash(password);
 
-                string inserUser = "INSERT INTO Usuarios (Nombre, Email, Rol, PasswordHash) VALUES (@nombre, @email, @rol, @hash);";
-                using (var cmd = new SQLiteCommand(inserUser, connetion))
-                {
-                    cmd.Parameters.AddWithValue("@nombre", nombre);
-                    cmd.Parameters.AddWithValue("@email", email);
-                    cmd.Parameters.AddWithValue("@hash", PasswordHash);
-                    cmd.ExecuteNonQuery();
-                    Console.WriteLine("Usuario guardado exitsamente");
-                }
+        string insertUser = "INSERT INTO Usuarios (Nombre, Email, PasswordHash) VALUES (@nombre, @email, @hash);";
 
-                static string CalcularHash(string input)
-                {
-                    using (SHA256 sHA256 = SHA256.Create())
-                    {
-                        var bytes = Encoding.UTF32.GetBytes(input);
-                        var hash = sHA256.ComputeHash(bytes);
-                        return BitConverter.ToString(hash).Replace("-", "").ToLower();
+        using (var insertCmd = new SQLiteCommand(insertUser, connection))
+        {
+            insertCmd.Parameters.AddWithValue("@nombre", nombre);
+            insertCmd.Parameters.AddWithValue("@email", email);
+            insertCmd.Parameters.AddWithValue("@hash", passwordHash);
+            insertCmd.ExecuteNonQuery();
+        }
 
-                    }
-                }
-            }
-        
+        Console.WriteLine("Usuario guardado exitosamente.");
     }
-        
+}
+
+        private static string CalcularHash(string input)
+        {
+            using (SHA256 sha256 = SHA256.Create())
+            {
+                byte[] bytes = Encoding.UTF8.GetBytes(input);
+                byte[] hash = sha256.ComputeHash(bytes);
+                return BitConverter.ToString(hash).Replace("-", "").ToLower();
+            }
+        }
     }
 }

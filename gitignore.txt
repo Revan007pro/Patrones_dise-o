@@ -1,0 +1,26 @@
+# Carpetas de compilación
+bin/
+obj/
+
+# Archivos de base de datos
+*.db
+*.sqlite
+*.sqlite3
+
+# Visual Studio / Rider / IDE específicos
+.vs/
+*.suo
+*.user
+*.config.user
+*.resharper
+*.dotSettings
+*.pidb
+*.log
+*.bak
+*.temp
+*.tmp
+*.vspscc
+*.vssscc
+*.vspcc
+*.vsw
+*.code-workspace

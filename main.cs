@@ -3,6 +3,7 @@ using Gtk;
 using Administrador;
 using _usuario;
 using _basedeDatos;
+using System.Text.RegularExpressions;
 
 namespace Main
 {
@@ -10,22 +11,21 @@ namespace Main
     {
         private static _principal? instancia = null;
         private static readonly object candado = new object();
-        private _principal()
-        {
 
-        }
-
-        private static _principal _Instancia;
+        private _principal() { }
 
         public static _principal GetInstance()
         {
             lock (candado)
-                if (_Instancia == null)
+            {
+                if (instancia == null)
                 {
-                    _Instancia = new _principal();
+                    instancia = new _principal();
                 }
-            return _Instancia;
+                return instancia;
+            }
         }
+
         public static void Main(string[] args)
         {
             Application.Init();
@@ -34,31 +34,55 @@ namespace Main
             myWindow.SetPosition(WindowPosition.Center);
             myWindow.DeleteEvent += (o, e) => Application.Quit();
 
-
-            Box myBox = new Box(Orientation.Horizontal, 0);
+            Box myBox = new Box(Orientation.Vertical, 10);
 
             Gtk.Label userLabel = new Gtk.Label("Ingrese su nombre de usuario");
             Entry _user = new Entry();
-            
+
+            Gtk.Label emailLabel = new Gtk.Label("Ingrese su Email");
+            Entry emailEntry = new Entry();
+
+            Gtk.Label passLabel = new Gtk.Label("Ingrese su contraseña");
+            Entry passEntry = new Entry();
+            passEntry.Visibility = false;  // Oculta caracteres
+
+            Gtk.Label errorLabel = new Gtk.Label("");
+
+            Button _boton1 = new Button("Ingresar");
+            _boton1.Clicked += (sender, e) =>
+            {
+                string usuario = _user.Text;
+                string email = emailEntry.Text;
+                string contraseña = passEntry.Text;
+
+                if (!Regex.IsMatch(usuario, @"^[a-zA-Z]+$"))
+                {
+                    errorLabel.Text = "Error: solo letras permitidas en el nombre";
+                    return;
+                }
+
+                // Aquí podrías usar tu lógica para guardar o consultar en DB
+                DataBaseManager dbManager = new DataBaseManager();
+                dbManager._dataBase(usuario, email,contraseña); // Esta función necesita revisión también
+
+                // Simula llamada al método del administrador
+                var admin = new Administrador.Administrador();
+                myWindow.Hide();
+                admin.IniciarSeccion();
+            };
 
             myBox.PackStart(userLabel, false, false, 0);
-            _principal.GetInstance();
+            myBox.PackStart(_user, false, false, 0);
+            myBox.PackStart(emailLabel, false, false, 0);
+            myBox.PackStart(emailEntry, false, false, 0);
+            myBox.PackStart(passLabel, false, false, 0);
+            myBox.PackStart(passEntry, false, false, 0);
+            myBox.PackStart(errorLabel, false, false, 0);
+            myBox.PackStart(_boton1, false, false, 0);
 
-
-            //DatabaseManager dbManager = new DatabaseManager();
-
-
-            // dbManager.AddUser("Juan", "Perez", "México", "juan.perez@example.com");
-            //dbManager.GetAllUsers();
-
-            Console.WriteLine("Presiona cualquier tecla para salir...");
-            Console.ReadKey();
             myWindow.Add(myBox);
             myWindow.ShowAll();
             Application.Run();
         }
-        
-        }
     }
-
-
+}
